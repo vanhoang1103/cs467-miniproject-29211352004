@@ -1,0 +1,154 @@
+=================================================================
+JOB AND INTERNSHIP DESCRIPTION MATCHER
+STAGE 5 - SAMPLE DEMONSTRATION
+=================================================================
+
+=== RESUME-TO-JOB MATCHING ===
+------------------------------------------------------------
+Rank: 1
+Job ID: J011
+Role: Machine Learning Intern
+Company: AIMinds
+Location: Hanoi
+Score: 0.3744
+Method: Content-Based
+Matched skills: machine learning, python
+------------------------------------------------------------
+Rank: 2
+Job ID: J015
+Role: Data Engineer Intern
+Company: CloudData
+Location: Hanoi
+Score: 0.1990
+Method: Content-Based
+Matched skills: python, sql
+------------------------------------------------------------
+Rank: 3
+Job ID: J012
+Role: AI Engineer Intern
+Company: DeepVision
+Location: Da Nang
+Score: 0.1809
+Method: Content-Based
+Matched skills: machine learning, python
+------------------------------------------------------------
+Rank: 4
+Job ID: J025
+Role: Product Analyst Intern
+Company: ProductPath
+Location: Ho Chi Minh City
+Score: 0.1699
+Method: Content-Based
+Matched skills: sql
+------------------------------------------------------------
+Rank: 5
+Job ID: J014
+Role: Computer Vision Intern
+Company: VisionX
+Location: Ho Chi Minh City
+Score: 0.1680
+Method: Content-Based
+Matched skills: python
+
+=== RETURNING CANDIDATE ===
+Available candidate IDs:
+U001, U002, U003, U004, U005, U006, U007, U008, U009, U010, U011, U012, U013, U014, U015
+------------------------------------------------------------
+Rank: 1
+Job ID: J007
+Role: Full-Stack Developer Intern
+Company: DevNest
+Location: Da Nang
+Score: 0.1816
+Method: User-Profile
+Matched skills: 
+------------------------------------------------------------
+Rank: 2
+Job ID: J005
+Role: Java Developer Intern
+Company: FinStack
+Location: Ho Chi Minh City
+Score: 0.1188
+Method: User-Profile
+Matched skills: 
+------------------------------------------------------------
+Rank: 3
+Job ID: J001
+Role: Python Developer Intern
+Company: NovaTech
+Location: Da Nang
+Score: 0.1089
+Method: User-Profile
+Matched skills: 
+------------------------------------------------------------
+Rank: 4
+Job ID: J022
+Role: Mobile Developer Intern
+Company: AppMakers
+Location: Da Nang
+Score: 0.1035
+Method: User-Profile
+Matched skills: 
+------------------------------------------------------------
+Rank: 5
+Job ID: J008
+Role: Software Engineer Intern
+Company: NextGen Systems
+Location: Hanoi
+Score: 0.0951
+Method: User-Profile
+Matched skills: 
+
+=== COLD-START: NEW JOB POSTING ===
+New job added temporarily:
+Job ID: DEMO_NEW_001
+Role: Junior Python AI Developer
+Company: Demo Technology
+Existing ratings for this job: 0
+
+Recommendations including the new job:
+------------------------------------------------------------
+Rank: 1
+Job ID: DEMO_NEW_001
+Role: Junior Python AI Developer
+Company: Demo Technology
+Location: Da Nang
+Score: 0.6481
+Method: Content-Based
+Matched skills: git, machine learning, python, sql
+------------------------------------------------------------
+Rank: 2
+Job ID: J011
+Role: Machine Learning Intern
+Company: AIMinds
+Location: Hanoi
+Score: 0.3126
+Method: Content-Based
+Matched skills: machine learning, python
+------------------------------------------------------------
+Rank: 3
+Job ID: J012
+Role: AI Engineer Intern
+Company: DeepVision
+Location: Da Nang
+Score: 0.2435
+Method: Content-Based
+Matched skills: machine learning, python
+------------------------------------------------------------
+Rank: 4
+Job ID: J026
+Role: Research Assistant Intern - AI
+Company: DTU Research Lab
+Location: Da Nang
+Score: 0.2091
+Method: Content-Based
+Matched skills: machine learning, python
+------------------------------------------------------------
+Rank: 5
+Job ID: J015
+Role: Data Engineer Intern
+Company: CloudData
+Location: Hanoi
+Score: 0.1032
+Method: Content-Based
+Matched skills: python, sql

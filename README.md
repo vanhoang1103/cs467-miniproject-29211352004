@@ -1,26 +1,258 @@
-# Job and Internship Description Matcher
+"""
+Job and Internship Description Matcher
+Stage 5: Interactive Demo
 
-- Student: Nguyễn Văn Hoàng
-- Student ID: 29211352004
-- Section: CS467A
-- Project: MP-A06 – Job and Internship Description Matcher
+Features:
 
-## Stage 1: Dataset
-This repository currently contains a synthetic teaching dataset:
-- `data/items.csv`: 40 internship/job postings.
-- `data/ratings.csv`: 15 candidate profiles represented by user IDs and 75 interest ratings (5 ratings per candidate).
+1. Resume-to-job matching
+2. Returning candidate recommendation
+3. Cold-start recommendation for a new job posting
+   """
 
-The job postings and candidate ratings are synthetic examples created for this coursework. They are not claims of live vacancies or real candidate reviews. If a public dataset is used later, its source must be cited here.
+from pathlib import Path
+import sys
 
-## Dataset schema
-`items.csv`: item_id, role_title, company, location, job_description, required_skills
+ROOT = Path(**file**).resolve().parents[1]
+SRC_DIR = ROOT / "src"
 
-`ratings.csv`: user_id, item_id, interest_rating (1–5), note
+sys.path.insert(0, str(SRC_DIR))
 
-Note: The assignment's two sparsity instructions conflict mathematically: 12–15 candidates × 4–6 ratings each cannot produce a 40–65% missing matrix when there are 35–45 jobs. This dataset follows the explicit 4–6 ratings-per-candidate instruction; with 15 candidates, 40 jobs, and 75 ratings, 87.5% of the full matrix is missing.\n\n## Stage 1 validation
-Run:
-```bash
-python check_dataset.py
-```
+from recommender import JobRecommender
+from nlp_pipeline import NLPProcessor
 
-Later stages will add NLP, recommendation methods, evaluation, charts, and demo instructions.
+ITEMS_PATH = ROOT / "data" / "items.csv"
+RATINGS_PATH = ROOT / "data" / "ratings.csv"
+RESULTS_DIR = ROOT / "results"
+
+def print_results(results):
+"""Display recommendation results."""
+if not results:
+print("No recommendations found.")
+return
+
+    for item in results:
+        print("-" * 60)
+        print(f"Rank: {item.get('rank', '-')}")
+        print(f"Job ID: {item.get('item_id', '-')}")
+        print(f"Role: {item.get('role_title', '-')}")
+        print(f"Company: {item.get('company', '-')}")
+        print(f"Location: {item.get('location', '-')}")
+        print(f"Score: {item.get('score', 0):.4f}")
+        print(f"Method: {item.get('method', '-')}")
+        print(
+            "Matched skills: "
+            + ", ".join(item.get("matched_skills", []))
+        )
+
+def resume_demo(recommender, resume_text=None):
+"""Recommend jobs based on resume text."""
+print("\n=== RESUME-TO-JOB MATCHING ===")
+
+    if not resume_text:
+        resume_text = input(
+            "Enter your resume skills and experience: "
+        ).strip()
+
+    if not resume_text:
+        print("Resume text cannot be empty.")
+        return []
+
+    results = recommender.recommend_by_text(
+        resume_text,
+        top_n=5
+    )
+
+    print_results(results)
+    return results
+
+def returning_candidate_demo(recommender, user_id=None):
+"""Recommend jobs for an existing candidate."""
+print("\n=== RETURNING CANDIDATE ===")
+
+    available_users = sorted(
+        recommender.ratings["user_id"].astype(str).unique()
+    )
+
+    print("Available candidate IDs:")
+    print(", ".join(available_users))
+
+    if user_id is None:
+        user_id = input("Enter candidate ID: ").strip()
+
+    if user_id not in available_users:
+        print(f"Candidate {user_id} was not found.")
+        return []
+
+    results = recommender.recommend_for_user_profile(
+        user_id=user_id,
+        top_n=5
+    )
+
+    print_results(results)
+    return results
+
+def cold_start_demo(recommender):
+"""
+Test a new job posting with zero ratings.
+
+    The new job is added only in memory.
+    Original CSV files are not modified.
+    """
+    print("\n=== COLD-START: NEW JOB POSTING ===")
+
+    new_job = {
+        "item_id": "DEMO_NEW_001",
+        "role_title": "Junior Python AI Developer",
+        "company": "Demo Technology",
+        "location": "Da Nang",
+        "job_description": (
+            "Looking for a junior developer with Python, "
+            "SQL, machine learning, data analysis and Git "
+            "knowledge. Candidates will work on AI projects."
+        ),
+        "required_skills": (
+            "Python, SQL, Machine Learning, Data Analysis, Git"
+        )
+    }
+
+    original_items = recommender.items.copy()
+    original_nlp = recommender.nlp
+    original_vectors = recommender.item_vectors
+
+    try:
+        import pandas as pd
+
+        combined_items = pd.concat(
+            [
+                original_items,
+                pd.DataFrame([new_job])
+            ],
+            ignore_index=True
+        )
+
+        # Refit TF-IDF to include the new job posting.
+        new_nlp = NLPProcessor()
+        new_nlp.fit(combined_items)
+
+        recommender.items = combined_items
+        recommender.nlp = new_nlp
+        recommender.item_vectors = new_nlp.item_vectors
+
+        print("New job added temporarily:")
+        print(f"Job ID: {new_job['item_id']}")
+        print(f"Role: {new_job['role_title']}")
+        print(f"Company: {new_job['company']}")
+        print("Existing ratings for this job: 0")
+
+        results = recommender.recommend_by_text(
+            "Python SQL machine learning Git AI developer",
+            top_n=5
+        )
+
+        print("\nRecommendations including the new job:")
+        print_results(results)
+
+        return results
+
+    finally:
+        # Restore the original in-memory recommender.
+        recommender.items = original_items
+        recommender.nlp = original_nlp
+        recommender.item_vectors = original_vectors
+
+def run_sample_tests(recommender):
+"""Run all three demo scenarios and save their outputs."""
+import io
+from contextlib import redirect_stdout
+
+    output = io.StringIO()
+
+    with redirect_stdout(output):
+        print("=" * 65)
+        print("JOB AND INTERNSHIP DESCRIPTION MATCHER")
+        print("STAGE 5 - SAMPLE DEMONSTRATION")
+        print("=" * 65)
+
+        resume_demo(
+            recommender,
+            resume_text=(
+                "Computer Science student with Python, SQL, "
+                "machine learning, Git and data analysis skills."
+            )
+        )
+
+        sample_user = sorted(
+            recommender.ratings["user_id"].astype(str).unique()
+        )[0]
+
+        returning_candidate_demo(
+            recommender,
+            user_id=sample_user
+        )
+
+        cold_start_demo(recommender)
+
+    content = output.getvalue()
+    print(content)
+
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    output_path = RESULTS_DIR / "sample_outputs.txt"
+    output_path.write_text(content, encoding="utf-8")
+
+    print(f"\nSample outputs saved to: {output_path}")
+
+def main():
+print("=" _ 65)
+print("JOB AND INTERNSHIP DESCRIPTION MATCHER")
+print("=" _ 65)
+
+    recommender = JobRecommender(
+        items_path=str(ITEMS_PATH),
+        ratings_path=str(RATINGS_PATH)
+    )
+
+    print(f"Loaded jobs: {len(recommender.items)}")
+    print(f"Loaded ratings: {len(recommender.ratings)}")
+    print(
+        "Loaded candidates: "
+        f"{recommender.ratings['user_id'].nunique()}"
+    )
+
+    while True:
+        print("\n" + "=" * 50)
+        print("MAIN MENU")
+        print("=" * 50)
+        print("1. Resume-to-job matching")
+        print("2. Returning candidate recommendation")
+        print("3. Cold-start new job test")
+        print("4. Run all sample tests and save outputs")
+        print("0. Exit")
+
+        choice = input("\nChoose an option: ").strip()
+
+        try:
+            if choice == "1":
+                resume_demo(recommender)
+
+            elif choice == "2":
+                returning_candidate_demo(recommender)
+
+            elif choice == "3":
+                cold_start_demo(recommender)
+
+            elif choice == "4":
+                run_sample_tests(recommender)
+
+            elif choice == "0":
+                print("Exiting demo. Goodbye!")
+                break
+
+            else:
+                print("Invalid option. Please choose 0-4.")
+
+        except Exception as error:
+            print(f"An error occurred: {error}")
+
+if **name** == "**main**":
+main()
