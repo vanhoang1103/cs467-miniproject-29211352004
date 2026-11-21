@@ -74,24 +74,27 @@ def create_holdout_split(ratings):
     return train_df, test_df
 
 
+
 def get_recommendations(recommender, method, user_id, top_n=5):
     """
     Gọi phương pháp gợi ý tương ứng.
     """
     method_candidates = {
-        "Popularity": ["recommend_popular"],
-        "Content-Based": [
-            "recommend_user_profile",
-            "recommend_by_user_profile"
-        ],
-        "Hybrid": ["recommend_hybrid"]
-    }
+    "Popularity": ["recommend_popular"],
+    "Content-Based": [
+        "recommend_for_user_profile"
+    ],
+    "Hybrid": ["recommend_hybrid"]
+}
 
     for method_name in method_candidates[method]:
         function = getattr(recommender, method_name, None)
 
         if callable(function):
-            results = function(user_id=user_id, top_n=top_n)
+            results = function(
+                user_id=user_id,
+                top_n=top_n
+            )
 
             if results is None:
                 return []
@@ -102,10 +105,8 @@ def get_recommendations(recommender, method, user_id, top_n=5):
             ]
 
     raise AttributeError(
-        f"Không tìm thấy hàm gợi ý cho phương pháp {method}. "
-        "Hãy kiểm tra tên hàm trong recommender.py."
+        f"Không tìm thấy hàm gợi ý cho phương pháp {method}."
     )
-
 
 def evaluate_models(recommender, test_df):
     """
